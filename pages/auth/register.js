@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
 
 export default function Register() {
@@ -80,9 +81,9 @@ export default function Register() {
 
         <p className="text-sm text-center">
           Already have an account?{' '}
-          <a href="/auth/login" className="text-blue-600 hover:underline">
+          <Link href="/auth/login" className="text-blue-600 hover:underline">
             Login
-          </a>
+          </Link>
         </p>
       </form>
     </div>
