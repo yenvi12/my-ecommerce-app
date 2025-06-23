@@ -1,15 +1,20 @@
 import React from 'react';
+import Image from 'next/image';
 
 export default function CartItem({ item, onRemove, onUpdate }) {
   const { product, quantity, id } = item;
 
   return (
     <div className="flex items-center gap-4 bg-white shadow-sm rounded p-4 mb-4">
-      <img
-        src={product.image || '/placeholder.png'}
-        alt={product.name}
-        className="w-24 h-24 object-contain border rounded"
-      />
+      <div className="relative w-24 h-24 border rounded overflow-hidden">
+        <Image
+          src={product.image || '/placeholder.png'}
+          alt={product.name}
+          layout="fill"
+          objectFit="contain"
+          className="rounded"
+        />
+      </div>
 
       <div className="flex-1">
         <h4 className="text-lg font-semibold">{product.name}</h4>
