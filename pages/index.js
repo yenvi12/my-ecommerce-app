@@ -1,6 +1,5 @@
 // ... import giữ nguyên
 import { supabase } from '@/lib/supabase';
-import { toast } from 'react-toastify'; // dùng nếu có react-toastify, hoặc bạn có thể dùng alert()
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
