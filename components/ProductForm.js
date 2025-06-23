@@ -161,7 +161,6 @@ const ProductForm = ({ productData = {} }) => {
         className="w-full border px-4 py-2 rounded"
       />
 
-      {/* Drag & drop zone */}
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -203,5 +202,4 @@ const ProductForm = ({ productData = {} }) => {
     </form>
   );
 };
-
 export default ProductForm;

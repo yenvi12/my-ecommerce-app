@@ -6,14 +6,14 @@ import { useRouter } from 'next/router';
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState(null);
-  const [isMounted, setIsMounted] = useState(false); // 👈 để tránh hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true); // Đánh dấu đã mount (chạy trên client)
+    setIsMounted(true);
 
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+      setUser(data?.user || null);
     };
     getUser();
 
@@ -26,7 +26,6 @@ export default function Navbar() {
     };
   }, []);
 
-  // ❌ Tránh render sớm trước khi client mount
   if (!isMounted) return null;
 
   const handleLogout = async () => {
@@ -35,17 +34,17 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-blue-600 text-white flex justify-between items-center px-6 py-4 shadow">
-      <Link href="/" className="font-bold text-lg hover:underline">
+    <nav className="bg-blue-600 text-white px-6 py-4 flex justify-between items-center shadow">
+      <Link href="/" className="text-xl font-bold hover:underline">
         EcomApp
       </Link>
 
-      <div className="flex gap-4 items-center">
+      <div className="flex items-center gap-4">
+        <Link href="/" className="hover:underline">Home</Link>
+        <Link href="/cart" className="hover:underline">Cart</Link>
+        {user && <Link href="/orders" className="hover:underline">Orders</Link>}
         {user && (
-          <Link
-            href="/products/add"
-            className="hover:underline text-white font-medium"
-          >
+          <Link href="/products/add" className="hover:underline">
             Add Product
           </Link>
         )}

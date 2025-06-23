@@ -1,6 +1,10 @@
+// ... import giữ nguyên
+import { supabase } from '@/lib/supabase';
+import { toast } from 'react-toastify'; // dùng nếu có react-toastify, hoặc bạn có thể dùng alert()
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -8,6 +12,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
   const itemsPerPage = 8;
 
   useEffect(() => {
@@ -23,8 +28,45 @@ export default function Home() {
         setLoading(false);
       }
     };
+
     fetchProducts();
+
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data?.user || null);
+    };
+    getUser();
   }, []);
+
+  const addToCart = async (product) => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        alert('Please login to add to cart');
+        return;
+      }
+
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: product.id,
+          quantity: 1
+        })
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Failed to add to cart');
+
+      alert('✅ Added to cart!');
+    } catch (err) {
+      alert(`❌ ${err.message}`);
+    }
+  };
 
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -35,11 +77,8 @@ export default function Home() {
   const currentItems = filtered.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  if (loading)
-    return <p className="text-center text-gray-500 mt-10">Loading products...</p>;
-
-  if (error)
-    return <p className="text-center text-red-600 font-semibold">{error}</p>;
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (error) return <p className="text-center text-red-600">{error}</p>;
 
   return (
     <div>
@@ -85,19 +124,28 @@ export default function Home() {
                   {product.name}
                 </Link>
                 <p className="text-green-600 font-bold text-lg mt-1">
-                  ${product.price.toFixed(2)}
+                  ${Number(product.price).toFixed(2)}
                 </p>
                 <p className="text-sm text-gray-700 mt-2">
                   {product.description?.substring(0, 100)}...
                 </p>
               </div>
-              <div className="border-t border-gray-200 px-4 py-3 flex justify-end">
-                <Link
-                  href={`/products/edit/${product.id}`}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold text-sm"
+
+              <div className="flex justify-between items-center px-4 py-3 border-t">
+                {user && (
+                  <Link
+                    href={`/products/edit/${product.id}`}
+                    className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                  >
+                    Edit
+                  </Link>
+                )}
+                <button
+                  onClick={() => addToCart(product)}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
                 >
-                  Edit
-                </Link>
+                  Add to Cart
+                </button>
               </div>
             </div>
           ))}
